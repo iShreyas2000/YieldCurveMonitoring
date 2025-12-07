@@ -57,58 +57,27 @@ def get_yield_curve_for_date(date, cache=yearly_yield_curves_cache):
     except Exception as e:
         raise ValueError(f"An unexpected error occurred while retrieving data for {date_str}: {e}")
 
+def visualize_yield_curve(date):
+    """
+    Visualizes the yield curve for a given date.
+
+    Args:
+        date (datetime.date): The date for which to visualize the yield curve.
+    """
+    try:
+        yield_curve_data = get_yield_curve_for_date(date)
+
+        plt.figure(figsize=(10, 5))
+        plt.plot(yield_curve_data.index, yield_curve_data.values, marker='o', linestyle='-')
+        plt.title(f"Yield Curve for {date.strftime('%Y-%m-%d')}")
+        plt.xlabel("Tenors (in years)")
+        plt.ylabel("Annualized Yields")
+        plt.legend([f"Yield Curve: {date.strftime('%Y-%m-%d')}"])
+        plt.grid(True)
+        plt.show()
+    except ValueError as e:
+        print(f"Error visualizing yield curve for {date.strftime('%Y-%m-%d')}: {e}")
+
 if __name__ == "__main__":
-
-    print("Defined get_yield_curve_for_date function.")
-
-    # --- Example Usage ---
-    print("\n--- Demonstrating get_yield_curve_for_date function ---")
-
-    # 1. Valid date (2024, already in cache if previous cells ran and assigned df to cache[2024])
-    # Assuming 'df' from previous execution is for 2024, let's put it into the cache for a clean start
-    if 2024 not in yearly_yield_curves_cache and 'df' in globals():
-        yearly_yield_curves_cache[2024] = df
-
-    valid_date_2024 = dt.date(2024, 1, 5)
-    try:
-        print(f"\nAttempting to retrieve yield curve for {valid_date_2024}:")
-        yc_2024 = get_yield_curve_for_date(valid_date_2024, yearly_yield_curves_cache)
-        print(f"Yield curve for {valid_date_2024}:\n{yc_2024}")
-    except ValueError as e:
-        print(f"Error for {valid_date_2024}: {e}")
-
-    # 2. Valid date for a year not yet in the cache (e.g., 2023)
-    valid_date_2023 = dt.date(2023, 1, 5)
-    try:
-        print(f"\nAttempting to retrieve yield curve for {valid_date_2023} (should trigger load):")
-        yc_2023 = get_yield_curve_for_date(valid_date_2023, yearly_yield_curves_cache)
-        print(f"Yield curve for {valid_date_2023}:\n{yc_2023}")
-    except ValueError as e:
-        print(f"Error for {valid_date_2023}: {e}")
-
-    # 3. A date for which no data exists (e.g., a weekend)
-    no_data_date = dt.date(2024, 1, 7) # A Sunday in 2024
-    try:
-        print(f"\nAttempting to retrieve yield curve for {no_data_date} (should error - no data):")
-        yc_no_data = get_yield_curve_for_date(no_data_date, yearly_yield_curves_cache)
-        print(f"Yield curve for {no_data_date}:\n{yc_no_data}")
-    except ValueError as e:
-        print(f"Error for {no_data_date}: {e}")
-
-    # 4. A date before 1990 to demonstrate the year validation error
-    invalid_year_date = dt.date(1989, 12, 25)
-    try:
-        print(f"\nAttempting to retrieve yield curve for {invalid_year_date} (should error - invalid year):")
-        yc_invalid_year = get_yield_curve_for_date(invalid_year_date, yearly_yield_curves_cache)
-        print(f"Yield curve for {invalid_year_date}:\n{yc_invalid_year}")
-    except ValueError as e:
-        print(f"Error for {invalid_year_date}: {e}")
-
-    # 5. A date in the future (no data)
-    future_date = dt.date(2025, 12, 15) # Assuming 2025 data isn't available yet
-    try:
-        print(f"\nAttempting to retrieve yield curve for {future_date} (should error - no data):")
-        yc_future = get_yield_curve_for_date(future_date, yearly_yield_curves_cache)
-        print(f"Yield curve for {future_date}:\n{yc_future}")
-    except ValueError as e:
-        print(f"Error for {future_date}: {e}")
+    valid_date = dt.datetime(*map(int, input("Input Valid date (%Y/%m/%d): ").split("/")))
+    visualize_yield_curve(valid_date)
