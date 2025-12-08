@@ -1,6 +1,7 @@
 import pandas as pd
 import datetime as dt
 import matplotlib.pyplot as plt
+from tabulate import tabulate
 
 yearly_yield_curves_cache = {}
 print("Initialized yearly_yield_curves_cache as an empty dictionary.")
@@ -78,6 +79,54 @@ def visualize_yield_curve(date):
     except ValueError as e:
         print(f"Error visualizing yield curve for {date.strftime('%Y-%m-%d')}: {e}")
 
+def compare_yield_curves_formatted(date1, date2):
+    """
+    Compares yield curves for two dates, printing the curves and their differences in a formatted table.
+
+    Args:
+        date1 (datetime.date): The first date.
+        date2 (datetime.date): The second date.
+    """
+    try:
+        yc1 = get_yield_curve_for_date(date1)
+        yc2 = get_yield_curve_for_date(date2)
+
+        # Ensure both series have the same index (tenors)
+        common_tenors = yc1.index.intersection(yc2.index)
+        yc1 = yc1.loc[common_tenors]
+        yc2 = yc2.loc[common_tenors]
+
+        # Calculate differences
+        absolute_diff = (yc2 - yc1) * 10000 # in basis points
+        # Avoid division by zero for relative difference if yc1 has zero values
+        relative_diff = ((yc2 - yc1) / yc1) * 100 # in percentage points
+
+        # Create a reverse mapping for human-readable tenor labels
+        # Need to re-create col_mapping keys that might be missing if 1.5 month, 2 month etc. are not available
+        # from current df for 2025. This should be taken from the full col_mapping
+        full_reverse_col_mapping = {v: k for k, v in col_mapping.items()}
+
+        # Prepare data for display
+        data_to_display = pd.DataFrame({
+            f'YC {date1.strftime("%Y-%m-%d")}': yc1 * 100,
+            f'YC {date2.strftime("%Y-%m-%d")}': yc2 * 100,
+            'Absolute Difference (bps)': absolute_diff,
+            'Relative Difference (%)': relative_diff
+        })
+
+        # Rename index to human-readable tenors
+        data_to_display.index = [full_reverse_col_mapping.get(t, f'{t} Yr') for t in data_to_display.index]
+
+        print(f"\n--- Yield Curve Comparison: {date1.strftime('%Y-%m-%d')} vs {date2.strftime('%Y-%m-%d')} ---")
+        # Transpose the DataFrame before printing
+        print(tabulate(data_to_display.T, headers='keys', tablefmt='fancy_grid', floatfmt=".2f"))
+
+    except ValueError as e:
+        print(f"Error comparing yield curves: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
 if __name__ == "__main__":
-    valid_date = dt.datetime(*map(int, input("Input Valid date (%Y/%m/%d): ").split("/")))
-    visualize_yield_curve(valid_date)
+    day1 = dt.datetime(*map(int, input("Input Valid date (%Y/%m/%d): ").split("/")))
+    day2 = dt.datetime(*map(int, input("Input Valid date (%Y/%m/%d): ").split("/")))
+    compare_yield_curves_formatted(day1, day2)
