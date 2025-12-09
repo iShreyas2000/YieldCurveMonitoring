@@ -1,0 +1,4 @@
+currency link
+USD https://home.treasury.gov/policy-issues/financing-the-government/interest-rate-statistics
+EURO https://www.ecb.europa.eu/stats/financial_markets_and_interest_rates/euro_area_yield_curves/html/index.en.html
+CAD https://www.bankofcanada.ca/rates/
