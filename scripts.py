@@ -36,7 +36,7 @@ def get_yield_curve_for_date(date, visual=False, cache=yearly_yield_curves_cache
 
         try:
             # Load data
-            yearly_df = pd.read_csv(url, index_col="Date", parse_dates=True)
+            yearly_df = pd.read_csv(url, index_col="Date", parse_dates=True, date_format="%m/%d/%Y")
             # Rename columns using the global col_mapping
             yearly_df = yearly_df.rename(columns=col_mapping)
             # Convert to decimals
