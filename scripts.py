@@ -66,6 +66,7 @@ def get_yield_curve_for_date(date, visual=False, cache=yearly_yield_curves_cache
         raise ValueError(f"No yield curve data found for date: {date_str}")
     except Exception as e:
         raise ValueError(f"An unexpected error occurred while retrieving data for {date_str}: {e}")
+
 def compare_yield_curves(date1, date2, visual=True):
     """
     Compares the yield curves for two given dates, always printing a formatted table
@@ -99,14 +100,14 @@ def compare_yield_curves(date1, date2, visual=True):
         tenor_labels = [full_reverse_col_mapping.get(t, f'{t} Yr') for t in common_tenors]
 
         # Calculate differences (common for both output types)
-        absolute_diff = (yc2 - yc1) * 10000  # Convert to basis points
+        absolute_diff = (yc1 - yc2) * 10000  # Convert to basis points
         # Replace 0 with NA to avoid ZeroDivisionError for relative difference
-        relative_diff = ((yc2 - yc1) / yc1.replace(0, pd.NA)) * 100  # in percentage points
+        relative_diff = ((yc1 - yc2) / yc2.replace(0, pd.NA)) * 100  # in percentage points
 
         # Tabulation (always printed first)
         data_to_display = pd.DataFrame({
-            f'YC {date1.strftime("%Y-%m-%d")}_pct': yc1 * 100,
-            f'YC {date2.strftime("%Y-%m-%d")}_pct': yc2 * 100,
+            f'YC for {date1.strftime("%Y-%m-%d")}': yc1 * 100,
+            f'YC for {date2.strftime("%Y-%m-%d")}': yc2 * 100,
             'Absolute Difference (bps)': absolute_diff,
             'Relative Difference (%)': relative_diff
         })
